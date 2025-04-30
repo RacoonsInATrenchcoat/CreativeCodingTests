@@ -1,5 +1,6 @@
 const canvasSketch = require('canvas-sketch');
 const random = require('canvas-sketch-util/random');
+const math = require('canvas-sketch-util/math');
 
 const settings = {
   dimensions: [1080, 1080],
@@ -7,6 +8,7 @@ const settings = {
 };
 
 const sketch = ({ context, width, height }) => {
+
 
   const agents = []
   for (let i = 0; i < 40; i++) {
@@ -21,13 +23,34 @@ const sketch = ({ context, width, height }) => {
     context.fillStyle = 'white';
     context.fillRect(0, 0, width, height);
 
-    const AgentA = new Agent(800, 400);
-    const AgentB = new Agent(300, 700);
+    for (let i = 0; i < agents.length; i++) {
+      const agent = agents[i];
+
+      for (let j = i + 1; j < agents.length; j++) { //+1 is added, so it doesnt draw both ways each time
+        const other = agents[j];
+
+        const dist = agent.pos.getDistance(other.pos);
+
+        if (dist > 200) continue;
+
+        context.lineWidth = math.mapRange(dist, 0, 200, 12, 1);
+
+        context.beginPath();
+        context.moveTo(agent.pos.x, agent.pos.y);
+        context.lineTo(other.pos.x, other.pos.y);
+        context.stroke();
+
+      }
+
+    }
 
     agents.forEach(agents => {
       agents.update();
       agents.draw(context);
-      agents.bounce(width,height)
+
+        //agents.wrap(width, height) //either of the two
+        agents.bounce(width, height)
+
     })
 
   };
@@ -40,7 +63,15 @@ class Vector {
     this.x = x;
     this.y = y;
   }
+
+  getDistance(v) {
+    const dx = this.x - v.x;
+    const dy = this.y - v.y;
+    return Math.sqrt(dx * dx + dy * dy)
+  }
 }
+
+
 
 class Agent {
   constructor(x, y) {
@@ -57,6 +88,11 @@ class Agent {
   bounce(width, height) {
     if (this.pos.x <= 0 || this.pos.x >= width) this.vel.x *= -1;
     if (this.pos.y <= 0 || this.pos.y >= height) this.vel.y *= -1;
+  }
+
+  wrap(width, height) {
+    if (this.pos.x > width) this.pos.x = 0;
+    if (this.pos.y > height) this.pos.y = 0;
   }
 
   draw(context) {
