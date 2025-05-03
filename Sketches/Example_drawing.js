@@ -44,10 +44,17 @@ class Circle {
 
     //3, Add the Drawing part (within the class, so it's also drawn without needing 2nd function.    
     draw(context) {
+        context.save();
+
         context.beginPath();                                          //Start a new shape
         context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);     //Say it'll be a circle
         context.fillStyle = this.color;                               //Set a fill color, default is black
+        context.shadowColor = 'rgba(0, 255, 13, 0.9)';              //Add a "glow" color around the item
+        context.shadowBlur = 20                                       //Set the blurring size/radius
         context.fill();                                               //Do the action based on the above details.
+        //context.stroke();                                           //Use instead of FILL to have lines instead.
+
+        context.restore();
     }
 
 };
@@ -92,7 +99,7 @@ const currentItemList = [];
 const amountOfItems_3 = 10;
 
 function drawForContainer3() {
-    
+
     for (let i = 0; i < amountOfItems_3; i++) {
 
         //Parameters, randomised here for variety
@@ -137,12 +144,31 @@ function animate() {
                     maxLineWidth * ((100 - dist) / 100)
                 );
 
+                // 1. Glow effect with a wide blurred transparent stroke
+                context_3.save();
+
                 context_3.beginPath();
                 context_3.moveTo(a.x, a.y);
                 context_3.lineTo(b.x, b.y);
-                context_3.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-                context_3.lineWidth = lineWidth;
+                context_3.lineWidth = lineWidth + 6; // Slightly wider than main line
+                context_3.strokeStyle = 'rgba(0, 183, 255, 0.4)';
+                context_3.shadowColor = 'rgba(0, 0, 255, 0.8)';
+                context_3.shadowBlur = 12;
                 context_3.stroke();
+
+                context_3.restore();
+
+                // 2. Real line
+                context_3.save();
+
+                context_3.beginPath();
+                context_3.moveTo(a.x, a.y);
+                context_3.lineTo(b.x, b.y);
+                context_3.lineWidth = lineWidth;
+                context_3.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+                context_3.stroke();
+
+                context_3.restore();
             }
         }
     }
