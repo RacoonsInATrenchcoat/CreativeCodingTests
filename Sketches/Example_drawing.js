@@ -14,11 +14,11 @@ const speedMultiplier = 1;
 
 //2, Create the re-useable Constructors in JS:
 class Circle {
-    constructor(x, y, radius, color) {
+    constructor(x, y, radius, options = {}) {
         this.x = x;              //this.x is the input X value
         this.y = y;              //this.y is the input Y value
         this.radius = radius;    //this.radius is the input radius value
-        this.color = color; //this.color is the input color value
+        this.color = options.color; //this.color is the input Options color value
         // Velocity (random x and y speed between -3 and 3)
         this.vx = (Math.random() - 0.5) * speedMultiplier;
         this.vy = (Math.random() - 0.5) * speedMultiplier;
@@ -43,16 +43,34 @@ class Circle {
 
 
     //3, Add the Drawing part (within the class, so it's also drawn without needing 2nd function.    
-    draw(context) {
+    draw(context, options = {}) {
+
+        //Default settings for options. Ensures everything starts as basic, unless instructed and no bleedover of details.
+        const {
+            fillStyle = this.color,
+            strokeStyle = null,
+            shadowColor = 'transparent',
+            shadowBlur = 0,
+            useStroke = false,
+        } = options;
+
         context.save();
 
         context.beginPath();                                          //Start a new shape
         context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);     //Say it'll be a circle
-        context.fillStyle = this.color;                               //Set a fill color, default is black
-        context.shadowColor = 'rgba(0, 255, 13, 0.9)';              //Add a "glow" color around the item
-        context.shadowBlur = 20                                       //Set the blurring size/radius
+        context.fillStyle = fillStyle;                                //Set a fill color, default is black
+        context.shadowColor = shadowColor;                            //Add a "glow" color around the item
+        context.shadowBlur = shadowBlur;                              //Set the blurring size/radius
         context.fill();                                               //Do the action based on the above details.
         //context.stroke();                                           //Use instead of FILL to have lines instead.
+
+        //Use Stroke when istructed, otherwise default to Fill.
+        if (useStroke) {
+            context.strokeStyle = strokeStyle || fillStyle;
+            context.stroke();
+        } else {
+            context.fill();
+        }
 
         context.restore();
     }
@@ -65,11 +83,19 @@ const x = Math.random() * canvas_1.width;   //We define x0 based on the containe
 const y = Math.random() * canvas_1.height;  //We define y0 based on the container height.
 
 //New HTML element created, calling the Circle function with x=100,y=50,radius=30 as input.
-const drawn_Circle_1 = new Circle(x, y, 30)
-const drawn_Circle_2 = new Circle(50, 100, 20)
+//Options part is used for non-mandatory specifics, like color.
+const drawn_Circle_1 = new Circle(x, y, 30, { color: 'red' });
+const drawn_Circle_2 = new Circle(50, 100, 20, { color: 'green' });
 //The element is created, now to drawn on it with the previously added details:
+//Basic draw
 drawn_Circle_1.draw(context);
-drawn_Circle_2.draw(context);
+//Draw with options values added to use
+drawn_Circle_2.draw(context, {
+    shadowColor: 'green',
+    shadowBlur: 10,
+    useStroke: true,
+    strokeStyle: 'yellow'
+});
 
 
 
@@ -78,6 +104,7 @@ drawn_Circle_2.draw(context);
 const canvas_2 = document.getElementById("canvas_2"); //JS value is linked, so the correct gets updated
 const context_2 = canvas_2.getContext("2d");              //Default command, so it knows to interpret as 2D drawing.
 const amountOfItems = 20;
+const color = 'blue';
 
 for (let i = 0; i < amountOfItems; i++) {
 
@@ -85,7 +112,7 @@ for (let i = 0; i < amountOfItems; i++) {
     const x = Math.random() * canvas_2.width;   //We define x0 based on the container width.
     const y = Math.random() * canvas_2.height;  //We define y0 based on the container height.
 
-    const currentItem = new Circle(x, y, 30);
+    const currentItem = new Circle(x, y, 30, { color });
     currentItem.draw(context_2);
 
 }
@@ -107,10 +134,10 @@ function drawForContainer3() {
         const y = Math.random() * canvas_3.height;  //We define y0 based on the container height.
 
         const radius = 20;
-        const colors = ['red', /*'blue', 'green', 'orange', 'purple'*/]; //Add whatever colors wanted
+        const colors = ['black', /*'blue', 'green', 'orange', 'purple'*/]; //Add whatever colors wanted
         const color = colors[Math.floor(Math.random() * colors.length)];
 
-        currentItemList.push(new Circle(x, y, radius, color));
+        currentItemList.push(new Circle(x, y, radius, { color }));
     }
 }
 
